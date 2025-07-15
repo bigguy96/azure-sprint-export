@@ -119,7 +119,6 @@ namespace SprintItemsApp
                 double totalMinWidth = 0;
                 foreach (var column in dataGrid.Columns)
                 {
-                    // Auto-size all columns initially to content
                     column.Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
                     dataGrid.UpdateLayout();
                     var desiredWidth = column.ActualWidth;
@@ -128,14 +127,12 @@ namespace SprintItemsApp
                         desiredWidth = column.MinWidth;
                     }
                     totalMinWidth += desiredWidth;
-                    // Set fixed width for Auto columns, leave Star columns to adjust
                     if (column.Width.IsAuto && !column.Width.IsSizeToCells)
                     {
                         column.Width = new DataGridLength(desiredWidth, DataGridLengthUnitType.Pixel);
                     }
                 }
 
-                // Adjust Star columns to share remaining space
                 var starColumns = dataGrid.Columns.Where(c => c.Width.IsStar).ToList();
                 if (starColumns.Any())
                 {
@@ -189,14 +186,29 @@ namespace SprintItemsApp
                 SlideMasterPart slideMasterPart = presentationPart.AddNewPart<SlideMasterPart>();
                 slideMasterPart.SlideMaster = new SlideMaster(
                     new CommonSlideData(new ShapeTree()),
-                    new ColorMapOverride(),
+                    new ColorMap
+                    {
+                        Background1 = new EnumValue<A.ColorSchemeIndexValues>(A.ColorSchemeIndexValues.Dark1),
+                        Text1 = new EnumValue<A.ColorSchemeIndexValues>(A.ColorSchemeIndexValues.Light1),
+                        Background2 = new EnumValue<A.ColorSchemeIndexValues>(A.ColorSchemeIndexValues.Light2),
+                        Text2 = new EnumValue<A.ColorSchemeIndexValues>(A.ColorSchemeIndexValues.Dark2),
+                        Accent1 = new EnumValue<A.ColorSchemeIndexValues>(A.ColorSchemeIndexValues.Accent1),
+                        Accent2 = new EnumValue<A.ColorSchemeIndexValues>(A.ColorSchemeIndexValues.Accent2),
+                        Accent3 = new EnumValue<A.ColorSchemeIndexValues>(A.ColorSchemeIndexValues.Accent3),
+                        Accent4 = new EnumValue<A.ColorSchemeIndexValues>(A.ColorSchemeIndexValues.Accent4),
+                        Accent5 = new EnumValue<A.ColorSchemeIndexValues>(A.ColorSchemeIndexValues.Accent5),
+                        Accent6 = new EnumValue<A.ColorSchemeIndexValues>(A.ColorSchemeIndexValues.Accent6)
+                    },
                     new SlideLayoutIdList()
                 );
                 slideMasterPart.SlideMaster.Save();
 
                 // Create slide layout part
                 SlideLayoutPart slideLayoutPart = slideMasterPart.AddNewPart<SlideLayoutPart>();
-                slideLayoutPart.SlideLayout = new SlideLayout(new CommonSlideData(new ShapeTree()));
+                slideLayoutPart.SlideLayout = new SlideLayout(
+                    new CommonSlideData(new ShapeTree()) { Name = new CommonSlideDataName { Value = "Blank" } },
+                    new ColorMapOverride()
+                );
                 slideLayoutPart.SlideLayout.Save();
 
                 // Link slide master to layout
@@ -207,58 +219,70 @@ namespace SprintItemsApp
                 };
                 presentationPart.Presentation.SlideMasterIdList.Append(slideMasterId);
 
-                // Create slide part
-                SlidePart slidePart = presentationPart.AddNewPart<SlidePart>();
-                slidePart.Slide = new Slide(new CommonSlideData(new ShapeTree()));
-                slidePart.AddPart(slideLayoutPart);
-                slidePart.Slide.Save();
-
-                // Link slide to presentation
-                SlideId slideId = new SlideId
+                // Link layout to master
+                SlideLayoutId slideLayoutId = new SlideLayoutId
                 {
-                    Id = 256U,
-                    RelationshipId = presentationPart.GetIdOfPart(slidePart)
+                    Id = 2147483649U,
+                    RelationshipId = slideMasterPart.GetIdOfPart(slideLayoutPart)
                 };
-                presentationPart.Presentation.SlideIdList.Append(slideId);
-
-                // Create table
-                A.Table table = new A.Table();
-                A.TableProperties tableProps = new A.TableProperties();
-                table.Append(tableProps);
-
-                // Table grid
-                A.TableGrid tableGrid = new A.TableGrid();
-                for (int i = 0; i < 5; i++)
-                {
-                    tableGrid.Append(new A.GridColumn { Width = 1905000 }); // ~2 inches per column
-                }
-                table.Append(tableGrid);
+                slideMasterPart.SlideMaster.SlideLayoutIdList.Append(slideLayoutId);
 
                 // Collect selected work items
                 var workItems = WorkItemsGrid.ItemsSource as IEnumerable<WorkItem>;
                 if (workItems == null) return;
 
-                // Header row
-                A.TableRow headerRow = new A.TableRow { Height = 370000 }; // ~0.5 inches
-                AddTableCell(headerRow, "ID", true);
-                AddTableCell(headerRow, "Title", true);
-                AddTableCell(headerRow, "State", true);
-                AddTableCell(headerRow, "Type", true);
-                AddTableCell(headerRow, "Assignee", true);
-                table.Append(headerRow);
-
-                // Data rows: Only include parent work items that are selected
+                // Create a slide for each selected parent work item
+                uint slideIdValue = 256U;
                 foreach (var workItem in workItems.Where(w => w.IsSelected))
                 {
-                    A.TableRow row = new A.TableRow { Height = 370000 };
-                    AddTableCell(row, workItem.Id.ToString(), false);
-                    AddTableCell(row, workItem.Title, false);
-                    AddTableCell(row, workItem.State, false);
-                    AddTableCell(row, workItem.WorkItemType, false);
-                    AddTableCell(row, workItem.Assignee, false);
-                    table.Append(row);
+                    // Create slide part
+                    SlidePart slidePart = presentationPart.AddNewPart<SlidePart>();
+                    slidePart.Slide = new Slide(
+                        new CommonSlideData(new ShapeTree()),
+                        new ColorMapOverride()
+                    );
+                    slidePart.AddPart(slideLayoutPart);
 
-                    // Include ALL child work items, regardless of IsSelected
+                    // Link slide to presentation
+                    SlideId slideId = new SlideId
+                    {
+                        Id = slideIdValue++,
+                        RelationshipId = presentationPart.GetIdOfPart(slidePart)
+                    };
+                    presentationPart.Presentation.SlideIdList.Append(slideId);
+
+                    // Create table
+                    A.Table table = new A.Table();
+                    A.TableProperties tableProps = new A.TableProperties();
+                    table.Append(tableProps);
+
+                    // Table grid
+                    A.TableGrid tableGrid = new A.TableGrid();
+                    for (int i = 0; i < 5; i++)
+                    {
+                        tableGrid.Append(new A.GridColumn { Width = 1905000 }); // ~2 inches per column
+                    }
+                    table.Append(tableGrid);
+
+                    // Header row
+                    A.TableRow headerRow = new A.TableRow { Height = 370000 }; // ~0.5 inches
+                    AddTableCell(headerRow, "ID", true);
+                    AddTableCell(headerRow, "Title", true);
+                    AddTableCell(headerRow, "State", true);
+                    AddTableCell(headerRow, "Type", true);
+                    AddTableCell(headerRow, "Assignee", true);
+                    table.Append(headerRow);
+
+                    // Parent row
+                    A.TableRow parentRow = new A.TableRow { Height = 370000 };
+                    AddTableCell(parentRow, workItem.Id.ToString(), false);
+                    AddTableCell(parentRow, workItem.Title, false);
+                    AddTableCell(parentRow, workItem.State, false);
+                    AddTableCell(parentRow, workItem.WorkItemType, false);
+                    AddTableCell(parentRow, workItem.Assignee, false);
+                    table.Append(parentRow);
+
+                    // Child rows
                     foreach (var child in workItem.Children)
                     {
                         A.TableRow childRow = new A.TableRow { Height = 370000 };
@@ -269,11 +293,11 @@ namespace SprintItemsApp
                         AddTableCell(childRow, child.Assignee, false);
                         table.Append(childRow);
                     }
-                }
 
-                // Add table to slide
-                slidePart.Slide.CommonSlideData.ShapeTree.Append(table);
-                slidePart.Slide.Save();
+                    // Add table to slide
+                    slidePart.Slide.CommonSlideData.ShapeTree.Append(table);
+                    slidePart.Slide.Save();
+                }
 
                 // Save presentation
                 presentationPart.Presentation.Save();
@@ -306,5 +330,10 @@ namespace SprintItemsApp
             cell.Append(cellProps);
             row.Append(cell);
         }
+    }
+
+    internal class CommonSlideDataName : StringValue
+    {
+        public string Value { get; set; }
     }
 }
