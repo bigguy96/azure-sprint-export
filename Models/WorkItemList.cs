@@ -1,11 +1,10 @@
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
-namespace SprintItemsApp.Models
+namespace SprintItemsApp.Models;
+
+public class WorkItemList
 {
-    public class WorkItemList
-    {
-        [JsonPropertyName("value")]
-        public List<WorkItem> Value { get; set; }
-    }
+    [JsonPropertyName("value")]
+    public List<WorkItem> Value { get; set; }
 }

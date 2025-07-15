@@ -1,12 +1,11 @@
 using System.Text.Json.Serialization;
 
-namespace SprintItemsApp.Models
+namespace SprintItemsApp.Models;
+
+public class WorkItemTarget
 {
-    public class WorkItemTarget
-    {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-        [JsonPropertyName("url")]
-        public string Url { get; set; }
-    }
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+    [JsonPropertyName("url")]
+    public string Url { get; set; }
 }

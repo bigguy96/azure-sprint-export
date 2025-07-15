@@ -1,13 +1,12 @@
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
-namespace SprintItemsApp.Models
+namespace SprintItemsApp.Models;
+
+public class SprintList
 {
-    public class SprintList
-    {
-        [JsonPropertyName("value")]
-        public List<Sprint> Value { get; set; }
-        [JsonPropertyName("count")]
-        public int Count { get; set; }
-    }
+    [JsonPropertyName("value")]
+    public List<Sprint> Value { get; set; }
+    [JsonPropertyName("count")]
+    public int Count { get; set; }
 }

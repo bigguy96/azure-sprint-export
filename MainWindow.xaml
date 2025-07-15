@@ -2,10 +2,11 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:SprintItemsApp"
+        xmlns:converters="clr-namespace:SprintItemsApp.Converters"
         Title="Sprint Work Items" Height="400" Width="600" WindowState="Maximized">
     <Window.Resources>
         <!-- Converter to hide DataGrid when Children is empty -->
-        <local:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
         
         <Style x:Key="DataGridColumnHeaderStyle" TargetType="{x:Type DataGridColumnHeader}">
             <Setter Property="FontSize" Value="20"/>
