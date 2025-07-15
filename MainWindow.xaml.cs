@@ -335,7 +335,7 @@ public partial class MainWindow : Window
                 table.Append(parentRow);
 
                 // Child rows
-                foreach (var child in workItem.Children ?? new List<WorkItem>())
+                foreach (var child in workItem.Children ?? [])
                 {
                     var childRow = new TableRow { Height = 370000 };
                     AddTableCell(childRow, child.Id.ToString(), false, 190500); // Indent ~0.25 inches
@@ -352,7 +352,7 @@ public partial class MainWindow : Window
                         new A.NonVisualDrawingProperties { Id = 2U, Name = "Table" },
                         new A.NonVisualGraphicFrameDrawingProperties()
                     ),
-                    new Transform2D(
+                    new Transform(
                         new Offset { X = 500000, Y = 500000 }, // ~0.5 inches from top-left
                         new Extents { Cx = 5 * 1905000, Cy = (1 + (workItem.Children?.Count ?? 0)) * 370000 } // Width: 5 columns, Height: rows
                     ),
