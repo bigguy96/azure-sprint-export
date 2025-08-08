@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PowerPointConsoleApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f3fbdcb445b61c5aacd57560ba689b47c5e7114f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7df1b68f0cb13ec0ddc6eb10edf79d9ac58a9cba")]
 [assembly: System.Reflection.AssemblyProductAttribute("PowerPointConsoleApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PowerPointConsoleApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
