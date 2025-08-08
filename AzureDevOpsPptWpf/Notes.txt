@@ -1,0 +1,23 @@
+﻿How to call PowerPoint generation from your UI:
+
+
+var selectedItems = WorkItemsDataGrid.SelectedItems.Cast<AzureDevOpsService.WorkItem>().ToList();
+if(selectedItems.Count == 0)
+{
+    MessageBox.Show("Select at least one work item.");
+    return;
+}
+
+var saveFileDialog = new Microsoft.Win32.SaveFileDialog()
+{
+    Filter = "PowerPoint Files (*.pptx)|*.pptx",
+    FileName = "WorkItemsPresentation.pptx"
+};
+
+if (saveFileDialog.ShowDialog() == true)
+{
+    PowerPointGenerator.GeneratePresentation(saveFileDialog.FileName, selectedItems);
+    MessageBox.Show("Presentation generated successfully!");
+}
+
+
