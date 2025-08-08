@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AzureDevOpsPptWpf")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+da049b4e4b60dde7d29f4a3f04e3e0004271331f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+885045f11bd8ca20762f9a41cda0e3fe1cb2ca2c")]
 [assembly: System.Reflection.AssemblyProductAttribute("AzureDevOpsPptWpf")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AzureDevOpsPptWpf")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

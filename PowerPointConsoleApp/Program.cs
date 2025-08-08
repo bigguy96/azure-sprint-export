@@ -6,10 +6,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using A = DocumentFormat.OpenXml.Drawing;
 
-const string organization = "transport-canada";
-const string project = "OneTC%20Online";
-const string team = "MTA%20Online%20Service%20Development";
-const string pat = "9hNtAIIZFxbdLFG0EbV4SPYNZb37qWzdAvJDC3rGXAn5gMkiEcgJJQQJ99BGACAAAAA3CxGpAAASAZDO1zVp";
+
 
 var docsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 var templatePath = Path.Combine(docsPath, "template.pptx"); // Your PowerPoint template file path
