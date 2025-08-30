@@ -4,13 +4,22 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Configuration;
+using PowerPointConsoleApp;
 using A = DocumentFormat.OpenXml.Drawing;
-
-
 
 var docsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 var templatePath = Path.Combine(docsPath, "template.pptx"); // Your PowerPoint template file path
 var outputPath = Path.Combine(docsPath, "SprintWorkItems.pptx");
+var config = new ConfigurationBuilder()
+    .AddUserSecrets(typeof(Program).Assembly, optional: true)
+    .AddEnvironmentVariables(prefix: "AZDO_")
+    .AddWindowsCredentialManager(["AzDo:Org", "AzDo:Project", "AzDo:Team", "AzDo:Token"])
+    .Build();
+var organization = config["AzDo:Org"];
+var project = config["AzDo:Project"];
+var team = config["AzDo:Team"];
+var pat = config["AzDo:Token"];
 
 await Main();
 return;
@@ -56,7 +65,7 @@ async Task Main()
     var presentation = presentationPart.Presentation;
 
     var slideIdList = presentation.SlideIdList ??= new SlideIdList();
-    uint maxSlideId = slideIdList.ChildElements.OfType<SlideId>().Select(s => s.Id.Value).DefaultIfEmpty((uint)255).Max();
+    var maxSlideId = slideIdList.ChildElements.OfType<SlideId>().Select(s => s.Id.Value).DefaultIfEmpty((uint)255).Max();
 
     // Use first slide as template
     var sourceSlidePart = presentationPart.SlideParts.First();
@@ -72,12 +81,12 @@ async Task Main()
         newSlidePart.AddPart(sourceLayoutPart);
 
         // Replace placeholders
-        ReplacePlaceholderTextByOrder(newSlidePart,true, $"{item.Id} - {item.Title}");
+        ReplacePlaceholderTextByOrder(newSlidePart, true, $"{item.Id} - {item.Title}");
         var desc = string.IsNullOrWhiteSpace(item.Description) ? "(No Description)" : StripHtmlTags(item.Description);
         ReplacePlaceholderTextByOrder(newSlidePart, false, desc);
 
         maxSlideId++;
-        string relId = presentationPart.GetIdOfPart(newSlidePart);
+        var relId = presentationPart.GetIdOfPart(newSlidePart);
         slideIdList.AppendChild(new SlideId() { Id = maxSlideId, RelationshipId = relId });
     }
 
@@ -117,7 +126,7 @@ static void ReplacePlaceholderTextByOrder(SlidePart slidePart, bool isTitle, str
         var run = new A.Run(
             new A.RunProperties { FontSize = 2400, Language = "en-US", Dirty = false }
         );
-        run.RunProperties.AppendChild(new A.LatinFont() { Typeface = "Calibri" });
+        run.RunProperties.AppendChild(new A.LatinFont() { Typeface = "Garamond" });
         run.AppendChild(new A.Text(line));
         para.AppendChild(run);
         para.AppendChild(new A.Break());
@@ -130,10 +139,15 @@ static string StripHtmlTags(string source)
     if (string.IsNullOrEmpty(source))
         return string.Empty;
 
+    if (source.Contains("&nbsp;"))
+    {
+        source = source.Replace("&nbsp;", " ");
+    }
+
     return Regex.Replace(source, "<.*?>", string.Empty);
 }
 
-static async Task<Sprint[]> GetSprints(string teamName)
+async Task<Sprint[]> GetSprints(string teamName)
 {
     using var client = CreateHttpClient();
 
@@ -148,7 +162,7 @@ static async Task<Sprint[]> GetSprints(string teamName)
     return sprintResult.Value;
 }
 
-static async Task<WorkItem[]> GetWorkItemsForSprint(string sprintPath)
+async Task<WorkItem[]> GetWorkItemsForSprint(string sprintPath)
 {
     using var client = CreateHttpClient();
 
@@ -197,7 +211,7 @@ static async Task<WorkItem[]> GetWorkItemsForSprint(string sprintPath)
     }).ToArray();
 }
 
-static HttpClient CreateHttpClient()
+HttpClient CreateHttpClient()
 {
     var client = new HttpClient();
     var authToken = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($":{pat}"));
