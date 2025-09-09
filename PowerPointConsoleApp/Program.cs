@@ -99,16 +99,7 @@ static void ReplacePlaceholderTextByOrder(SlidePart slidePart, bool isTitle, str
         .Where(s => s.TextBody != null)
         .ToList();
 
-    Shape? shape;
-
-    if (isTitle)
-    {
-        shape = shapesWithText.FirstOrDefault();
-    }
-    else
-    {
-        shape = shapesWithText.Skip(1).FirstOrDefault();
-    }
+    var shape = isTitle ? shapesWithText.FirstOrDefault() : shapesWithText.Skip(1).FirstOrDefault();
 
     var textBody = shape?.TextBody;
     if (textBody == null)
@@ -119,9 +110,7 @@ static void ReplacePlaceholderTextByOrder(SlidePart slidePart, bool isTitle, str
     var para = new A.Paragraph();
     foreach (var line in text.Split(['\n'], StringSplitOptions.None))
     {
-        var run = new A.Run(
-            new A.RunProperties { FontSize = 2400, Language = "en-US", Dirty = false }
-        );
+        var run = new A.Run(new A.RunProperties { FontSize = 2400, Language = "en-US", Dirty = false });
         run.RunProperties?.AppendChild(new A.LatinFont() { Typeface = "Garamond" });
         run.AppendChild(new A.Text(line));
         para.AppendChild(run);
