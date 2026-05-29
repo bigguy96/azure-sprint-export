@@ -1,9 +1,12 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
+
+namespace PowerPointConsoleApp.Models;
 
 public class WorkItemDetail
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }
+
     [JsonPropertyName("fields")]
     public Fields? Fields { get; set; }
 }

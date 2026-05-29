@@ -1,17 +1,19 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
-namespace PowerPointConsoleApp;
+namespace PowerPointConsoleApp.Infrastructure;
 
+// P/Invoke wrapper around the Windows Credential Manager (advapi32.dll).
+// Used to securely retrieve stored credentials (e.g. the Azure DevOps PAT) from the OS credential store.
 public static class WinCred
 {
     [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     private static extern bool CredRead(string target, int type, int reservedFlag, out IntPtr credentialPtr);
 
-
     [DllImport("advapi32.dll", SetLastError = true)]
     private static extern void CredFree(IntPtr buffer);
 
-
+    // Reads a generic credential from Windows Credential Manager by its target name.
+    // Returns the stored password string, or null if the credential does not exist.
     public static string? GetCredential(string target)
     {
         if (CredRead(target, 1 /* CRED_TYPE_GENERIC */, 0, out IntPtr credPtr))
@@ -23,7 +25,6 @@ public static class WinCred
         }
         return null;
     }
-
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct CREDENTIAL
